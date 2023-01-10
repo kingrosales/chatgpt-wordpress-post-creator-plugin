@@ -1,0 +1,60 @@
+<?php
+/*
+Plugin Name: ChatGPT Post Creator
+Plugin URI: https://example.com/chatgpt-post-creator
+Description: A plugin for creating posts using ChatGPT.
+Version: 1.0
+Author: Your Name
+Author URI: https://example.com
+*/
+
+// Include the ChatGPT library
+require_once 'path/to/chatgpt.php';
+
+// Your ChatGPT API key
+$api_key = 'your_api_key';
+
+// Initialize ChatGPT
+$chatgpt = new ChatGPT($api_key);
+
+// Function to create a new post with ChatGPT
+function create_chatgpt_post($topic) {
+  global $chatgpt;
+
+  // Use ChatGPT to generate a sentence based on the topic
+  $sentence = $chatgpt->generate($topic);
+
+  // Create a new post in WordPress
+  $new_post = array(
+    'post_title'    => $topic,
+    'post_content'  => $sentence,
+    'post_status'   => 'publish',
+    'post_author'   => 1,
+    'post_category' => array(8,39)
+  );
+
+  // Insert the post into the database
+  wp_insert_post($new_post);
+}
+
+// Function to create a form for sending a topic to ChatGPT
+function chatgpt_form() {
+  // Check if the form has been submitted
+  if (isset($_POST['chatgpt_topic'])) {
+    // Get the submitted topic
+    $topic = sanitize_text_field($_POST['chatgpt_topic']);
+
+    // Call the function to create a new post with ChatGPT
+    create_chatgpt_post($topic);
+  }
+  ?>
+  <form method="post">
+    <label for="chatgpt_topic">Enter a topic:</label><br>
+    <input type="text" name="chatgpt_topic" id="chatgpt_topic"><br>
+    <input type="submit" value="Submit">
+  </form>
+  <?php
+}
+
+// Shortcode to display the form
+add_shortcode('chatgpt_form', 'chatgpt_form');
